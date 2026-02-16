@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* === ATS-Verify Design System — Light SaaS Theme === */
+@theme {
+  /* Primary */
+  --color-primary: #3B82F6;
+  --color-primary-dark: #2563EB;
+  --color-primary-light: #DBEAFE;
+  --color-primary-50: #EFF6FF;
+
+  /* Backgrounds */
+  --color-bg: #F8FAFC;
+  --color-bg-white: #FFFFFF;
+  --color-bg-hover: #F1F5F9;
+  --color-bg-muted: #F1F5F9;
+
+  /* Borders */
+  --color-border: #E2E8F0;
+  --color-border-light: #F1F5F9;
+
+  /* Text */
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+
+  /* Semantic */
+  --color-success: #22C55E;
+  --color-success-light: #DCFCE7;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-danger: #EF4444;
+  --color-danger-light: #FEE2E2;
+  --color-info: #3B82F6;
+  --color-info-light: #DBEAFE;
+
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* === Global === */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Cards === */
+.card {
+  background-color: var(--color-bg-white);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.card-hover {
+  background-color: var(--color-bg-white);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* === Buttons === */
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm text-white bg-primary transition-all duration-200 cursor-pointer;
+}
+
+.btn-primary:hover {
+  @apply bg-primary-dark;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm text-text-secondary bg-bg-white border border-border transition-all duration-200 cursor-pointer;
+}
+
+.btn-secondary:hover {
+  @apply bg-bg-hover text-text-primary;
+}
+
+.btn-danger {
+  @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm text-white bg-danger transition-all duration-200 cursor-pointer;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* === Sidebar === */
+.sidebar {
+  @apply w-60 bg-bg-white border-r border-border flex flex-col h-screen sticky top-0;
+}
+
+.sidebar-logo {
+  @apply px-5 py-5 border-b border-border flex items-center gap-2.5;
+}
+
+.nav-link {
+  @apply flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-text-secondary transition-all duration-150 cursor-pointer;
+}
+
+.nav-link:hover {
+  @apply bg-bg-hover text-text-primary;
+}
+
+.nav-link-active {
+  @apply bg-primary-light text-primary font-medium;
+}
+
+/* === Badges === */
+.badge {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-light text-green-700;
+}
+
+.badge-warning {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-light text-amber-700;
+}
+
+.badge-danger {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-light text-red-700;
+}
+
+.badge-info {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-light text-blue-700;
+}
+
+.badge-neutral {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-bg-muted text-text-secondary;
+}
+
+/* === Tables === */
+.data-table {
+  @apply w-full text-sm;
+}
+
+.data-table thead {
+  @apply border-b border-border;
+}
+
+.data-table th {
+  @apply px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider;
+}
+
+.data-table td {
+  @apply px-4 py-3.5 text-text-secondary;
+}
+
+.data-table tbody tr {
+  @apply border-b border-border-light transition-colors;
+}
+
+.data-table tbody tr:hover {
+  @apply bg-bg-hover;
+}
+
+.data-table tbody tr:last-child {
+  @apply border-b-0;
+}
+
+/* === Form Inputs === */
+.input {
+  @apply w-full px-4 py-2.5 rounded-lg bg-bg-white border border-border text-text-primary text-sm transition-all duration-200;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus {
+  @apply outline-none border-primary;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* === Stat Cards === */
+.stat-card {
+  background-color: var(--color-bg-white);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-value {
+  @apply text-2xl font-bold text-text-primary;
+}
+
+.stat-label {
+  @apply text-sm text-text-secondary;
+}
+
+/* === Progress bars === */
+.progress-bar {
+  @apply h-1.5 rounded-full bg-bg-muted overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-500;
+}
+
+/* === Breadcrumb === */
+.breadcrumb {
+  @apply flex items-center gap-1.5 text-sm text-text-muted;
+}
+
+.breadcrumb a {
+  color: var(--color-primary);
+}
+
+.breadcrumb a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* === Page header === */
+.page-header {
+  @apply mb-6;
+}
+
+.page-title {
+  @apply text-2xl font-bold text-text-primary;
+}
+
+.page-subtitle {
+  @apply text-sm text-text-secondary mt-1;
+}
+
+/* === Status dots === */
+.dot-success {
+  @apply w-2 h-2 rounded-full bg-success inline-block;
+}
+
+.dot-danger {
+  @apply w-2 h-2 rounded-full bg-danger inline-block;
+}
+
+.dot-warning {
+  @apply w-2 h-2 rounded-full bg-warning inline-block;
+}
+
+/* === Pagination === */
+.pagination {
+  @apply flex items-center gap-1;
+}
+
+.pagination button {
+  @apply px-3 py-1.5 text-sm rounded-lg border border-border text-text-secondary transition-all cursor-pointer;
+}
+
+.pagination button:hover {
+  @apply bg-bg-hover text-text-primary;
+}
+
+.pagination button.active {
+  @apply bg-primary text-white border-primary;
+}

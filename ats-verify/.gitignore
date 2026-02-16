@@ -1,0 +1,28 @@
+# Environment
+.env
+
+# Go
+/bin/
+/tmp/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Binaries
+server
+*.exe
+*.dll
+
+# Logs
+*.log

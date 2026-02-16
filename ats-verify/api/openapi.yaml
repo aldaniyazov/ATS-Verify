@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: ATS-Verify API
+  description: API for Customs & Logistics Verification System
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Login user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: JWT Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  role:
+                    type: string
+
+  /parcels/upload:
+    post:
+      summary: Upload Daily CSV (Marketplace)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Upload processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_processed:
+                    type: integer
+                  inserted:
+                    type: integer
+                  updated:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: string
+
+  /parcels/track/{track_number}:
+    get:
+      summary: Check parcel status (ATS Staff)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: track_number
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Parcel status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  track_number:
+                    type: string
+                  is_used:
+                    type: boolean
+                  status_events:
+                    type: array
+                    items:
+                      type: object
+  
+  /admin/risks:
+    post:
+      summary: Update Logic for IIN/BIN Risk (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                iin_bin:
+                  type: string
+                risk_level:
+                  type: string
+                  enum: [green, yellow, red]
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Risk updated
+
+  /customs/analyze/imei:
+    post:
+      summary: Verify IMEIs against Declaration PDF (Customs)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                csv_file:
+                  type: string
+                  format: binary
+                pdf_file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Analysis Report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        imei:
+                          type: string
+                        found_in_pdf:
+                          type: boolean
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
