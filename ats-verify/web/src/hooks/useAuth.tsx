@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import type { User } from '../types';
 
 interface AuthContextType {
@@ -11,18 +11,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-
-    useEffect(() => {
+    const [user, setUser] = useState<User | null>(() => {
         const stored = localStorage.getItem('ats_user');
         if (stored) {
             try {
-                setUser(JSON.parse(stored));
+                return JSON.parse(stored);
             } catch {
                 localStorage.removeItem('ats_user');
             }
         }
-    }, []);
+        return null;
+    });
 
     const login = (userData: User) => {
         setUser(userData);
@@ -43,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error('useAuth must be used within AuthProvider');
