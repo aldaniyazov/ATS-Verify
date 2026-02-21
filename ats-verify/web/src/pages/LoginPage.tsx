@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import api from '../lib/api';
-import { Lock, User, CheckCircle2 } from 'lucide-react';
+import { Lock, User, CheckCircle2, Zap } from 'lucide-react';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -59,7 +59,8 @@ export default function LoginPage() {
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="input !pl-10"
+                                    className="input"
+                                    style={{ paddingLeft: '2.5rem' }}
                                     placeholder="Введите логин"
                                     required
                                 />
@@ -74,7 +75,8 @@ export default function LoginPage() {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="input !pl-10"
+                                    className="input"
+                                    style={{ paddingLeft: '2.5rem' }}
                                     placeholder="Введите пароль"
                                     required
                                 />
@@ -85,6 +87,44 @@ export default function LoginPage() {
                             {loading ? 'Вход...' : 'Войти в систему'}
                         </button>
                     </form>
+
+                    {/* Demo Login Shortcuts */}
+                    <div className="mt-6 pt-6 border-t border-border">
+                        <div className="flex items-center gap-2 mb-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                            <Zap size={14} className="text-warning" />
+                            Демо-вход
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                onClick={() => { setUsername('admin'); setPassword('admin'); }}
+                                className="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer"
+                            >
+                                Admin
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setUsername('ats_staff'); setPassword('ats_staff'); }}
+                                className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer"
+                            >
+                                ATS
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setUsername('customs_staff'); setPassword('customs_staff'); }}
+                                className="px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition-colors cursor-pointer"
+                            >
+                                Таможня
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setUsername('marketplace_wb'); setPassword('marketplace_wb'); }}
+                                className="px-3 py-1.5 text-xs font-medium rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors cursor-pointer"
+                            >
+                                Маркетплейс
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <p className="text-center text-text-muted text-xs mt-6">

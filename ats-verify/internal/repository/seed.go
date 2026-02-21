@@ -45,8 +45,8 @@ func Seed(ctx context.Context, db *sql.DB, hashFn func(string) (string, error)) 
 		}
 
 		_, err = db.ExecContext(ctx,
-			`INSERT INTO users (id, username, password_hash, role, marketplace_prefix, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
+			`INSERT INTO users (id, username, password_hash, role, marketplace_prefix, is_approved, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, $5, true, NOW(), NOW())`,
 			uuid.New(), u.username, hash, u.role, u.prefix,
 		)
 		if err != nil {

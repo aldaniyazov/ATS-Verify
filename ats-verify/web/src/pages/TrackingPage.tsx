@@ -147,7 +147,7 @@ export default function TrackingPage() {
                                 </div>
 
                                 {/* Content */}
-                                <div className={`pb-6 ${i < result.events.length - 1 ? '' : 'pb-0'}`}>
+                                <div className={`pb-6 ${i < result.events!.length - 1 ? '' : 'pb-0'}`}>
                                     <p className="text-sm font-medium text-text-primary">{event.description}</p>
                                     <p className="text-xs text-text-secondary mt-0.5">{event.location}</p>
                                     <p className="text-xs text-text-muted mt-0.5">{formatDate(event.event_time)}</p>

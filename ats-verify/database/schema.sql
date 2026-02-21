@@ -13,20 +13,35 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     role user_role NOT NULL,
     marketplace_prefix VARCHAR(50), -- Nullable, only for marketplace_staff
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 3. Risk Profiles (IIN/BIN)
--- Used by Admin to flag suspicious entities.
-CREATE TABLE risk_profiles (
+CREATE TABLE iin_bin_risks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     iin_bin VARCHAR(20) UNIQUE NOT NULL,
     risk_level risk_level DEFAULT 'green',
     flagged_by UUID REFERENCES users(id),
-    reason TEXT,
+    comment TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Risk Raw Data for ingestion
+CREATE TABLE risk_raw_data (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    report_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    application_id VARCHAR(100) NOT NULL,
+    iin_bin VARCHAR(20) NOT NULL,
+    document VARCHAR(100) NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    organization VARCHAR(255),
+    status VARCHAR(50),
+    reject VARCHAR(255),
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 4. Parcels Table
