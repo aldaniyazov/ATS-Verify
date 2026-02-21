@@ -99,3 +99,4 @@ description: Chronological log of development sessions, completed actions, and i
 - **Bug 3:** Added strict `RoleCustoms` constraints to the `ParcelsPage` UI and `/api/v1/parcels/mark-used` Go handler.
 - **Bug 4:** Connected the Backend explicitly to the `MarkUsed` DB execution layer (`UPDATE parcels SET is_used = true...`) resolving the UI state regression bug.
 - **Bug 5:** Added `ATS_Staff` and `Customs` to the `Analytics` RoleGards allowing cross-role functionality.
+Hotfix 5 Complete

@@ -112,7 +112,7 @@ func (r *ParcelRepository) GetByTrackNumber(ctx context.Context, trackNumber str
 func (r *ParcelRepository) MarkUsed(ctx context.Context, trackNumber string) error {
 	trackNumber = strings.TrimSpace(trackNumber)
 	result, err := r.db.ExecContext(ctx,
-		"UPDATE parcels SET is_used = true, updated_at = NOW() WHERE track_number = $1",
+		"UPDATE parcels SET is_used = true, updated_at = NOW() WHERE TRIM(track_number) = $1",
 		trackNumber,
 	)
 	if err != nil {

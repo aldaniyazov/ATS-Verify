@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/google/uuid"
@@ -87,6 +88,7 @@ func (s *RiskAnalysisService) AnalyzeCSV(ctx context.Context, reader io.Reader, 
 		}
 
 		if len(record) < 9 {
+			log.Printf("Risk CSV: skipping row due to length < 9 (len=%d) record: %v", len(record), record)
 			continue // Skip incomplete rows to avoid panic
 		}
 
@@ -103,6 +105,7 @@ func (s *RiskAnalysisService) AnalyzeCSV(ctx context.Context, reader io.Reader, 
 		}
 
 		if row.IINBIN == "" || row.IINBIN == "0" {
+			log.Printf("Risk CSV: skipping row due to empty IIN/BIN. docNum=%s", row.DocNum)
 			continue // IIN is strictly required for any risk logic
 		}
 		rows = append(rows, row)

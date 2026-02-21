@@ -99,7 +99,7 @@ func (s *ParcelService) ProcessCSVUpload(ctx context.Context, reader io.Reader, 
 		}
 
 		// Strictly skip rows where ANY critical value is missing
-		if finalMarketplace == "" || country == "" || brand == "" || productName == "" || snt == "" {
+		if finalMarketplace == "" || country == "" || brand == "" || productName == "" {
 			result.Errors = append(result.Errors, fmt.Sprintf("row %d: missing required fields", result.TotalProcessed))
 			continue
 		}
