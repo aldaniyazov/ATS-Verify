@@ -12,6 +12,7 @@ import RisksPage from './pages/RisksPage';
 import TicketsPage from './pages/TicketsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import type { UserRole } from './types';
+import { Toaster } from 'react-hot-toast';
 import './index.css';
 
 // Role-based route guard
@@ -26,6 +27,7 @@ function RoleGuard({ children, allowed }: { children: React.ReactNode; allowed: 
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

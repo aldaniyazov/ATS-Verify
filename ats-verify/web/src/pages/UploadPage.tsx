@@ -12,6 +12,7 @@ interface UploadResult {
 export default function UploadPage() {
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [result, setResult] = useState<UploadResult | null>(null);
     const [error, setError] = useState('');
     const [dragOver, setDragOver] = useState(false);
@@ -29,12 +30,19 @@ export default function UploadPage() {
         setUploading(true);
         setError('');
         setResult(null);
+        setProgress(0);
 
         try {
             const formData = new FormData();
             formData.append('file', file);
             const { data } = await api.post('/parcels/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setProgress(percent);
+                    }
+                }
             });
             setResult(data);
         } catch (err: unknown) {
@@ -92,6 +100,21 @@ export default function UploadPage() {
                         </div>
                     )}
                 </div>
+
+                {uploading && (
+                    <div className="mt-4">
+                        <div className="flex justify-between text-xs text-text-muted mb-1">
+                            <span>Загрузка файла...</span>
+                            <span>{progress}%</span>
+                        </div>
+                        <div className="w-full bg-border rounded-full h-2 overflow-hidden">
+                            <div
+                                className="bg-primary h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Error */}
                 {error && (

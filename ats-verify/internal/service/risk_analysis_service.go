@@ -48,58 +48,28 @@ type AnalyticsReports struct {
 }
 
 // AnalyzeCSV processes the risk analysis CSV and detects anomalies.
-// CSV format: Date | AppId | IIN/BIN | doc | User | Org | Status | Reject | Reason
+// Expected CSV strictly index-based:
+// 0: Date
+// 1: AppId
+// 2: IIN/BIN
+// 3: doc
+// 4: User
+// 5: Org
+// 6: Status
+// 7: Reject
+// 8: Reason
 func (s *RiskAnalysisService) AnalyzeCSV(ctx context.Context, reader io.Reader, flaggedBy uuid.UUID) (int, error) {
 	csvReader, err := NewRobustCSVReader(reader)
 	if err != nil {
 		return 0, fmt.Errorf("initializing robust CSV reader: %w", err)
 	}
 
-	header, err := csvReader.Read()
+	// Ignore header
+	_, err = csvReader.Read()
 	if err != nil {
 		return 0, fmt.Errorf("reading CSV header: %w", err)
 	}
-	for i := range header {
-		header[i] = strings.TrimSpace(header[i])
-	}
 
-	colMap := make(map[string]int)
-	for i, col := range header {
-		colMap[strings.ToLower(strings.TrimSpace(col))] = i
-	}
-
-	// Verify required columns exist.
-	requiredCols := []string{"iin", "doc", "status"}
-	altNames := map[string][]string{
-		"iin":    {"iin/bin", "iin_bin", "iin", "bin"},
-		"doc":    {"doc", "document", "doc_number", "document_number"},
-		"status": {"status"},
-	}
-
-	resolvedCols := make(map[string]int)
-	for _, req := range requiredCols {
-		found := false
-		for _, alt := range altNames[req] {
-			if idx, ok := colMap[alt]; ok {
-				resolvedCols[req] = idx
-				found = true
-				break
-			}
-		}
-		if !found {
-			return 0, fmt.Errorf("CSV missing required column: %s (tried: %v)", req, altNames[req])
-		}
-	}
-
-	// Optional columns.
-	appIDIdx := -1
-	if idx, ok := colMap["appid"]; ok {
-		appIDIdx = idx
-	} else if idx, ok := colMap["app_id"]; ok {
-		appIDIdx = idx
-	}
-
-	// Parse all rows.
 	var rows []RiskCSVRow
 	for {
 		record, err := csvReader.Read()
@@ -111,18 +81,28 @@ func (s *RiskAnalysisService) AnalyzeCSV(ctx context.Context, reader io.Reader, 
 		}
 		for i := range record {
 			record[i] = strings.TrimSpace(record[i])
+			if record[i] == "<nil>" {
+				record[i] = ""
+			}
+		}
+
+		if len(record) < 9 {
+			continue // Skip incomplete rows to avoid panic
 		}
 
 		row := RiskCSVRow{
-			IINBIN: safeGet(record, resolvedCols["iin"]),
-			DocNum: safeGet(record, resolvedCols["doc"]),
-			Status: safeGet(record, resolvedCols["status"]),
-		}
-		if appIDIdx >= 0 {
-			row.AppID = safeGet(record, appIDIdx)
+			Date:   record[0],
+			AppID:  record[1],
+			IINBIN: record[2],
+			DocNum: record[3],
+			User:   record[4],
+			Org:    record[5],
+			Status: record[6],
+			Reject: record[7],
+			Reason: record[8],
 		}
 
-		if row.IINBIN == "" {
+		if row.IINBIN == "" || row.IINBIN == "0" {
 			continue // IIN is strictly required for any risk logic
 		}
 		rows = append(rows, row)

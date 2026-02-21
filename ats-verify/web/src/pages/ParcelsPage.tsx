@@ -3,6 +3,7 @@ import { Search, Download, Filter } from 'lucide-react';
 import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import type { Parcel } from '../types';
+import { toast } from 'react-hot-toast';
 
 export default function ParcelsPage() {
     const [parcels, setParcels] = useState<Parcel[]>([]);
@@ -44,12 +45,12 @@ export default function ParcelsPage() {
     const handleMarkUsed = async (trackNumber: string) => {
         try {
             await api.post('/parcels/mark-used', { track_number: trackNumber });
-            // Optimistically update the local state to show 'IsUsed: true'
             setParcels(prev => prev.map(p => p.track_number === trackNumber ? { ...p, is_used: true } : p));
+            toast.success('Посылка отмечена как использованная');
         } catch (err: any) {
             console.error('Failed to mark parcel as used:', err);
             const msg = err.response?.data?.error || 'Ошибка: Не удалось отметить посылку как использованную.';
-            alert(msg);
+            toast.error(msg);
         }
     };
 

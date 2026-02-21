@@ -33,42 +33,24 @@ type UploadResult struct {
 }
 
 // ProcessCSVUpload parses a CSV file and upserts parcels.
-// Expected CSV format: marketplace, country, brand, product_name, track_number, snt, date
+// Expected CSV format strictly index-based:
+// 0: marketplace
+// 1: country
+// 2: brand
+// 3: product_name
+// 4: track_number
+// 5: snt
+// 6: date
 func (s *ParcelService) ProcessCSVUpload(ctx context.Context, reader io.Reader, overrideMarketplace string, uploadedBy uuid.UUID) (*UploadResult, error) {
 	csvReader, err := NewRobustCSVReader(reader)
 	if err != nil {
 		return nil, fmt.Errorf("initializing robust CSV reader: %w", err)
 	}
 
-	// Read header row
-	header, err := csvReader.Read()
+	// Read and IGNORE header row
+	_, err = csvReader.Read()
 	if err != nil {
 		return nil, fmt.Errorf("reading CSV header: %w", err)
-	}
-	for i := range header {
-		header[i] = strings.TrimSpace(header[i])
-	}
-
-	// Build column index map
-	colMap := make(map[string]int)
-	for i, col := range header {
-		colMap[strings.ToLower(strings.TrimSpace(col))] = i
-	}
-
-	// Require track_number column
-	trackIdx, ok := colMap["track_number"]
-	if !ok {
-		// Try alternative names
-		for _, alt := range []string{"track", "tracking_number", "трек-номер", "трек_номер"} {
-			if idx, found := colMap[alt]; found {
-				trackIdx = idx
-				ok = true
-				break
-			}
-		}
-		if !ok {
-			return nil, fmt.Errorf("CSV must contain a 'track_number' column")
-		}
 	}
 
 	result := &UploadResult{}
@@ -82,44 +64,59 @@ func (s *ParcelService) ProcessCSVUpload(ctx context.Context, reader io.Reader, 
 			result.Errors = append(result.Errors, fmt.Sprintf("row parse error: %v", err))
 			continue
 		}
+
+		// Clean up the record
 		for i := range record {
 			record[i] = strings.TrimSpace(record[i])
+			if record[i] == "<nil>" {
+				record[i] = ""
+			}
 		}
 
 		result.TotalProcessed++
 
-		trackNumber := strings.TrimSpace(record[trackIdx])
+		if len(record) < 7 {
+			result.Errors = append(result.Errors, fmt.Sprintf("row %d: missing required fields (expected at least 7 columns)", result.TotalProcessed))
+			continue
+		}
+
+		rowMarketplace := record[0]
+		country := record[1]
+		brand := record[2]
+		productName := record[3]
+		trackNumber := record[4]
+		snt := record[5]
+		dateStr := record[6]
+
 		if trackNumber == "" {
 			result.Errors = append(result.Errors, fmt.Sprintf("row %d: empty track_number", result.TotalProcessed))
 			continue
 		}
-
-		country := getCSVField(record, colMap, "country")
-		brand := getCSVField(record, colMap, "brand")
-		productName := getCSVField(record, colMap, "product_name")
-		if productName == "" { // fallback alternative column naming
-			productName = getCSVField(record, colMap, "name")
-		}
-		snt := getCSVField(record, colMap, "snt")
-		dateStr := getCSVField(record, colMap, "date")
-
-		rowMarketplace := getCSVField(record, colMap, "marketplace")
 
 		finalMarketplace := overrideMarketplace
 		if finalMarketplace == "" {
 			finalMarketplace = rowMarketplace
 		}
 
-		// Strictly skip rows where ANY required value is missing
-		if finalMarketplace == "" || country == "" || brand == "" || productName == "" || snt == "" || dateStr == "" {
+		// Strictly skip rows where ANY critical value is missing
+		if finalMarketplace == "" || country == "" || brand == "" || productName == "" || snt == "" {
 			result.Errors = append(result.Errors, fmt.Sprintf("row %d: missing required fields", result.TotalProcessed))
 			continue
 		}
 
 		var uploadDate time.Time
-		uploadDate, err = time.Parse("2006-01-02", dateStr) // assuming YYYY-MM-DD
-		if err != nil {
-			uploadDate = time.Now() // fallback to now if unparseable, though strict validation could block it
+		if dateStr != "" {
+			parsedDate, err := time.Parse("2006-01-02", dateStr)
+			if err == nil {
+				uploadDate = parsedDate
+			} else {
+				parsedDate2, err2 := time.Parse("02.01.2006", dateStr) // standard KZ format fallback
+				if err2 == nil {
+					uploadDate = parsedDate2
+				} else {
+					uploadDate = time.Now()
+				}
+			}
 		}
 
 		parcel := &models.Parcel{

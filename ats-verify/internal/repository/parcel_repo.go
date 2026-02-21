@@ -110,6 +110,7 @@ func (r *ParcelRepository) GetByTrackNumber(ctx context.Context, trackNumber str
 
 // MarkUsed sets is_used=true for a given parcel.
 func (r *ParcelRepository) MarkUsed(ctx context.Context, trackNumber string) error {
+	trackNumber = strings.TrimSpace(trackNumber)
 	result, err := r.db.ExecContext(ctx,
 		"UPDATE parcels SET is_used = true, updated_at = NOW() WHERE track_number = $1",
 		trackNumber,
@@ -119,7 +120,7 @@ func (r *ParcelRepository) MarkUsed(ctx context.Context, trackNumber string) err
 	}
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf("parcel with track_number %s not found", trackNumber)
+		return fmt.Errorf("parcel with track_number %s not found (trimmed)", trackNumber)
 	}
 	return nil
 }

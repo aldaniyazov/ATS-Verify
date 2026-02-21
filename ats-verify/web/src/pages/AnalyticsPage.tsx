@@ -43,6 +43,7 @@ export default function AnalyticsPage() {
     const { user } = useAuth();
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [result, setResult] = useState<AnalyticsResult | null>(null);
     const [error, setError] = useState('');
     const [dragOver, setDragOver] = useState(false);
@@ -79,12 +80,19 @@ export default function AnalyticsPage() {
         setUploading(true);
         setError('');
         setResult(null);
+        setProgress(0);
 
         try {
             const formData = new FormData();
             formData.append('file', file);
             const { data } = await api.post('/risks/analyze', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setProgress(percent);
+                    }
+                }
             });
             setResult(data);
             fetchReports(); // Refresh reports after upload
@@ -149,6 +157,21 @@ export default function AnalyticsPage() {
                             </div>
                         )}
                     </div>
+
+                    {uploading && (
+                        <div className="mt-4">
+                            <div className="flex justify-between text-xs text-text-muted mb-1">
+                                <span>Загрузка файла...</span>
+                                <span>{progress}%</span>
+                            </div>
+                            <div className="w-full bg-border rounded-full h-2 overflow-hidden">
+                                <div
+                                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    )}
 
                     {error && (
                         <div className="mt-4 bg-danger-light border border-danger/20 text-danger text-sm px-4 py-3 rounded-lg">
