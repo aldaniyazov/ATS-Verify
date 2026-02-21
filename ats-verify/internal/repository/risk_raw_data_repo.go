@@ -19,7 +19,7 @@ func NewRiskRawDataRepository(db *sql.DB) *RiskRawDataRepository {
 	return &RiskRawDataRepository{db: db}
 }
 
-// BulkInsert inserts multiple raw risk data rows into the database efficiently.
+// BulkInsert inserts multiple raw risk data rows into the database efficiently in chunks.
 func (r *RiskRawDataRepository) BulkInsert(ctx context.Context, rows []models.RiskRawData) error {
 	if len(rows) == 0 {
 		return nil
@@ -31,26 +31,35 @@ func (r *RiskRawDataRepository) BulkInsert(ctx context.Context, rows []models.Ri
 	}
 	defer tx.Rollback()
 
-	// PostgreSQL supports batch insert via multi-value VALUES clause
-	query := `INSERT INTO risk_raw_data (
-		report_date, application_id, iin_bin, document, user_name, organization, status, reject, reason, created_at
-	) VALUES `
+	chunkSize := 5000 // 5000 rows * 9 parameters = 45000 params, well under 65535 Postgre limit.
+	for start := 0; start < len(rows); start += chunkSize {
+		end := start + chunkSize
+		if end > len(rows) {
+			end = len(rows)
+		}
 
-	valStrings := make([]string, 0, len(rows))
-	valArgs := make([]interface{}, 0, len(rows)*10)
-	i := 1
+		batch := rows[start:end]
 
-	for _, row := range rows {
-		valStrings = append(valStrings, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, NOW())", i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8))
-		valArgs = append(valArgs, row.ReportDate, row.ApplicationID, row.IINBIN, row.Document, row.UserName, row.Organization, row.Status, row.Reject, row.Reason)
-		i += 9
-	}
+		query := `INSERT INTO risk_raw_data (
+			report_date, application_id, iin_bin, document, user_name, organization, status, reject, reason, created_at
+		) VALUES `
 
-	query += strings.Join(valStrings, ",")
+		valStrings := make([]string, 0, len(batch))
+		valArgs := make([]interface{}, 0, len(batch)*9)
+		i := 1
 
-	_, err = tx.ExecContext(ctx, query, valArgs...)
-	if err != nil {
-		return fmt.Errorf("bulk insert query: %w", err)
+		for _, row := range batch {
+			valStrings = append(valStrings, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, NOW())", i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8))
+			valArgs = append(valArgs, row.ReportDate, row.ApplicationID, row.IINBIN, row.Document, row.UserName, row.Organization, row.Status, row.Reject, row.Reason)
+			i += 9
+		}
+
+		query += strings.Join(valStrings, ",")
+
+		_, err = tx.ExecContext(ctx, query, valArgs...)
+		if err != nil {
+			return fmt.Errorf("bulk insert query at chunk %d: %w", start, err)
+		}
 	}
 
 	return tx.Commit()
