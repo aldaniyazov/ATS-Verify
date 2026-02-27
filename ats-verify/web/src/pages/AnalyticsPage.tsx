@@ -86,7 +86,6 @@ export default function AnalyticsPage() {
             const formData = new FormData();
             formData.append('file', file);
             const { data } = await api.post('/risks/analyze', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
                         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);

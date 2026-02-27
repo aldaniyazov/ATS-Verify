@@ -149,9 +149,7 @@ function CreateTicketModal({ onClose, onCreated }: { onClose: () => void; onCrea
             if (files.length > 0 && ticketId) {
                 const fd = new FormData();
                 files.forEach(f => fd.append('attachments', f));
-                await api.post(`/tickets/${ticketId}/attachments`, fd, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.post(`/tickets/${ticketId}/attachments`, fd);
             }
             onCreated();
         } catch (err: unknown) {

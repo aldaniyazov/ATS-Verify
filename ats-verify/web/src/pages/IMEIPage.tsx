@@ -44,9 +44,7 @@ export default function IMEIPage() {
             const formData = new FormData();
             formData.append('csv_file', csvFile);
             formData.append('pdf_file', pdfFile);
-            const { data } = await api.post('/imei/analyze', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            const { data } = await api.post('/imei/analyze', formData);
             setReport(data);
         } catch (err: unknown) {
             const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;

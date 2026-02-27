@@ -42,7 +42,6 @@ export default function UploadPage() {
                 formData.append('marketplace', marketplace);
             }
             const { data } = await api.post('/parcels/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
                         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
