@@ -88,6 +88,9 @@ func (s *ParcelService) ProcessCSVUpload(ctx context.Context, reader io.Reader, 
 		if country == "" {
 			country = getCSVField(record, colMap, "страна")
 		}
+		if country == "" {
+			country = getCSVField(record, colMap, "киргизия")
+		} // Hack for malformed dump.csv
 
 		brand := getCSVField(record, colMap, "brand")
 		if brand == "" {
