@@ -35,7 +35,6 @@ func Seed(ctx context.Context, db *sql.DB, hashFn func(string) (string, error)) 
 		{"admin", "admin", models.RoleAdmin, nil},
 		{"marketplace_wb", "marketplace_wb", models.RoleMarketplace, &wbPrefix},
 		{"ats_staff", "ats_staff", models.RoleATSStaff, nil},
-		{"customs_staff", "customs_staff", models.RoleCustoms, nil},
 	}
 
 	for _, u := range users {

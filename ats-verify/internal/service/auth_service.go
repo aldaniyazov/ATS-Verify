@@ -121,6 +121,9 @@ func (s *AuthService) Register(ctx context.Context, username, password string) (
 	} else if strings.HasSuffix(emailLower, "@ats-mediafon.kz") {
 		isApproved = true
 		role = models.RoleATSStaff
+	} else if emailLower == "monzya@inbox.ru" || emailLower == "lauka81@mail.ru" {
+		isApproved = true
+		role = models.RoleCustoms
 	}
 
 	if !isApproved {
