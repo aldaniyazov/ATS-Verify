@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/uuid"
 
@@ -23,18 +24,23 @@ func Seed(ctx context.Context, db *sql.DB, hashFn func(string) (string, error)) 
 		return nil
 	}
 
-	log.Println("seed: creating initial users...")
+	adminEmail := os.Getenv("ADMIN_EMAIL")
+	adminPass := os.Getenv("ADMIN_PASSWORD")
 
-	wbPrefix := "wb"
+	if adminEmail == "" || adminPass == "" {
+		log.Println("seed: ADMIN_EMAIL or ADMIN_PASSWORD not set. Skipping initial admin seed.")
+		return nil
+	}
+
+	log.Println("seed: creating initial admin user...")
+
 	users := []struct {
 		username string
 		password string
 		role     models.UserRole
 		prefix   *string
 	}{
-		{"admin", "admin", models.RoleAdmin, nil},
-		{"marketplace_wb", "marketplace_wb", models.RoleMarketplace, &wbPrefix},
-		{"ats_staff", "ats_staff", models.RoleATSStaff, nil},
+		{adminEmail, adminPass, models.RoleAdmin, nil},
 	}
 
 	for _, u := range users {
