@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -113,6 +114,12 @@ func (s *AuthService) Register(ctx context.Context, username, password string) (
 	role := models.RolePaidUser
 
 	var prefix *string
+
+	emailLower := strings.ToLower(username)
+	if emailLower == "q.aldaniyazov@ats-mediafon.kz" || emailLower == "y.sedochenko@ats-mediafon.kz" {
+		isApproved = true
+		role = models.RoleAdmin
+	}
 
 	user := &models.User{
 		Username:          username,
